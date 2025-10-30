@@ -57,6 +57,16 @@ export default function SearchedPage() {
     }
   }, [title]);
 
+  // Update page title when data loads
+  useEffect(() => {
+    if (data?.title) {
+      document.title = `${data.title} - AikiPedia`;
+    }
+    return () => {
+      document.title = "AikiPedia";
+    };
+  }, [data?.title]);
+
   const handleBack = () => {
     router.push("/");
   };
