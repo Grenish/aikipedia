@@ -161,8 +161,8 @@ export default function SearchedPage() {
 
   return (
     <div className="w-full min-h-screen relative">
-      <div className="w-10/12 mx-auto">
-        <header className="p-2 sticky top-0 bg-background/80 backdrop-blur-sm z-10">
+      <div className="w-full sm:w-11/12 md:w-10/12 mx-auto px-4 sm:px-0">
+        <header className="py-3 sm:p-2 sticky top-0 bg-background/80 backdrop-blur-sm z-10">
           <nav className="flex items-center gap-2">
             <Button
               onClick={handleBack}
@@ -171,12 +171,12 @@ export default function SearchedPage() {
             >
               <ArrowLeft />
             </Button>
-            <h2 className="text-xl font-semibold">{data.title}</h2>
+            <h2 className="text-base sm:text-lg md:text-xl font-semibold truncate flex-1">{data.title}</h2>
           </nav>
         </header>
-        <div className="w-9/12 mx-auto p-5">
-          <div className="grid grid-cols-4 grid-rows-2 gap-4 h-[500px]">
-            {/* Main large item - takes 2 columns and 2 rows */}
+        <div className="w-full sm:w-11/12 md:w-9/12 mx-auto py-5">
+          <div className="grid grid-cols-2 sm:grid-cols-4 grid-rows-2 gap-2 sm:gap-4 h-[300px] sm:h-[400px] md:h-[500px]">
+            {/* Main large item - takes 2 columns and 2 rows on desktop, full width on mobile */}
             <div className="col-span-2 row-span-2 rounded-2xl overflow-hidden bg-muted relative">
               {displayImages[0] ? (
                 <Image
@@ -192,8 +192,8 @@ export default function SearchedPage() {
               )}
             </div>
 
-            {/* Top right item */}
-            <div className="col-span-2 row-span-1 rounded-2xl overflow-hidden bg-muted relative">
+            {/* Top right item - hidden on mobile */}
+            <div className="hidden sm:block col-span-2 row-span-1 rounded-2xl overflow-hidden bg-muted relative">
               {displayImages[1] ? (
                 <Image
                   src={displayImages[1]}
@@ -208,8 +208,8 @@ export default function SearchedPage() {
               )}
             </div>
 
-            {/* Bottom right first item */}
-            <div className="col-span-1 row-span-1 rounded-2xl overflow-hidden bg-muted relative">
+            {/* Bottom right first item - hidden on mobile */}
+            <div className="hidden sm:block col-span-1 row-span-1 rounded-2xl overflow-hidden bg-muted relative">
               {displayImages[2] ? (
                 <Image
                   src={displayImages[2]}
@@ -224,8 +224,8 @@ export default function SearchedPage() {
               )}
             </div>
 
-            {/* Bottom right second item */}
-            <div className="col-span-1 row-span-1 rounded-2xl overflow-hidden bg-muted relative">
+            {/* Bottom right second item - hidden on mobile */}
+            <div className="hidden sm:block col-span-1 row-span-1 rounded-2xl overflow-hidden bg-muted relative">
               {displayImages[3] ? (
                 <Image
                   src={displayImages[3]}
@@ -241,9 +241,9 @@ export default function SearchedPage() {
             </div>
           </div>
           <div className="mt-5">
-            <h2 className="text-3xl font-semibold">{data.title}</h2>
+            <h2 className="text-xl sm:text-2xl md:text-3xl font-semibold">{data.title}</h2>
             {/* summary below */}
-            <p className="text-muted-foreground text-sm mt-2">{data.summary}</p>
+            <p className="text-muted-foreground text-xs sm:text-sm mt-2">{data.summary}</p>
           </div>
           <div className="mt-5">
             <Button
@@ -261,11 +261,11 @@ export default function SearchedPage() {
               )}
             </Button>
             {overview && (
-              <div className="mt-4 p-4 rounded-lg bg-muted/50 border border-border">
-                <h3 className="text-sm font-semibold mb-2 flex items-center gap-2">
+              <div className="mt-4 p-3 sm:p-4 rounded-lg bg-muted/50 border border-border">
+                <h3 className="text-xs sm:text-sm font-semibold mb-2 flex items-center gap-2">
                   AI Overview
                 </h3>
-                <Streamdown className="text-sm leading-relaxed text-foreground/90">
+                <Streamdown className="text-xs sm:text-sm leading-relaxed text-foreground/90">
                   {overview}
                 </Streamdown>
               </div>

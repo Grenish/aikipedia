@@ -100,8 +100,8 @@ function SearchContent() {
 
   return (
     <div className="w-full min-h-screen">
-      <div className="w-10/12 mx-auto">
-        <header className="p-2 sticky top-0 bg-background/80 backdrop-blur-sm z-10">
+      <div className="w-full sm:w-11/12 md:w-10/12 mx-auto px-4 sm:px-0">
+        <header className="py-3 sm:p-2 sticky top-0 bg-background/80 backdrop-blur-sm z-10">
           <nav className="flex items-center gap-2">
             <Button
               onClick={handleBack}
@@ -110,19 +110,19 @@ function SearchContent() {
             >
               <ArrowLeft />
             </Button>
-            <div className="flex flex-col">
+            <div className="flex flex-col min-w-0 flex-1">
               <p className="text-xs">Search result for</p>
-              <h2 className="text-lg font-semibold">{data.query}</h2>
+              <h2 className="text-base sm:text-lg font-semibold truncate">{data.query}</h2>
             </div>
           </nav>
         </header>
 
-        <div className="w-9/12 mx-auto p-5">
+        <div className="w-full sm:w-11/12 md:w-9/12 mx-auto py-5">
           {data.suggestions.length === 0 ? (
             <div className="text-center py-12">
-              <Search className="h-16 w-16 mx-auto text-muted-foreground mb-4" />
-              <h3 className="text-xl font-semibold mb-2">No results found</h3>
-              <p className="text-muted-foreground">
+              <Search className="h-12 w-12 sm:h-16 sm:w-16 mx-auto text-muted-foreground mb-4" />
+              <h3 className="text-lg sm:text-xl font-semibold mb-2">No results found</h3>
+              <p className="text-muted-foreground text-sm">
                 Try searching for something else
               </p>
             </div>
@@ -136,10 +136,10 @@ function SearchContent() {
                   key={suggestion.pageid}
                   onClick={() => handleSelectSuggestion(suggestion.title)}
                   variant={"ghost"}
-                  className="w-full h-auto flex items-center justify-between px-4 py-3 text-foreground"
+                  className="w-full h-auto flex items-center justify-between px-3 sm:px-4 py-3 text-foreground text-left"
                 >
-                  {suggestion.title}
-                  <ChevronRight />
+                  <span className="truncate flex-1">{suggestion.title}</span>
+                  <ChevronRight className="flex-shrink-0 ml-2" />
                 </Button>
               ))}
             </div>
