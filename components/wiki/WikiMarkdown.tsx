@@ -10,7 +10,7 @@ export function WikiMarkdown({ children }: WikiMarkdownProps) {
   const parsedContent = useMemo(() => parseContent(children), [children]);
 
   return (
-    <div className="prose prose-sm max-w-none dark:prose-invert">
+    <div className="prose prose-sm sm:prose-base max-w-none dark:prose-invert">
       {parsedContent}
     </div>
   );
@@ -119,7 +119,7 @@ function parseHeading(
       element = (
         <h2
           key={index}
-          className="text-2xl font-bold mt-8 mb-4 text-foreground"
+          className="text-xl sm:text-2xl font-bold mt-6 sm:mt-8 mb-3 sm:mb-4 text-foreground"
         >
           {processedText}
         </h2>
@@ -129,7 +129,7 @@ function parseHeading(
       element = (
         <h3
           key={index}
-          className="text-xl font-semibold mt-6 mb-3 text-foreground"
+          className="text-lg sm:text-xl font-semibold mt-5 sm:mt-6 mb-2 sm:mb-3 text-foreground"
         >
           {processedText}
         </h3>
@@ -330,7 +330,6 @@ type Token =
 function tokenizeInline(text: string): Token[] {
   const tokens: Token[] = [];
   let remaining = text;
-  let pos = 0;
 
   while (remaining.length > 0) {
     // Bold + Italic: '''''text'''''
@@ -338,7 +337,6 @@ function tokenizeInline(text: string): Token[] {
     if (match) {
       tokens.push({ type: "bolditalic", content: match[1] });
       remaining = remaining.slice(match[0].length);
-      pos += match[0].length;
       continue;
     }
 
@@ -347,7 +345,6 @@ function tokenizeInline(text: string): Token[] {
     if (match) {
       tokens.push({ type: "bold", content: match[1] });
       remaining = remaining.slice(match[0].length);
-      pos += match[0].length;
       continue;
     }
 
@@ -356,7 +353,6 @@ function tokenizeInline(text: string): Token[] {
     if (match) {
       tokens.push({ type: "italic", content: match[1] });
       remaining = remaining.slice(match[0].length);
-      pos += match[0].length;
       continue;
     }
 
@@ -369,7 +365,6 @@ function tokenizeInline(text: string): Token[] {
         text: match[2] || match[1],
       });
       remaining = remaining.slice(match[0].length);
-      pos += match[0].length;
       continue;
     }
 
@@ -382,7 +377,6 @@ function tokenizeInline(text: string): Token[] {
         text: match[2] || match[1],
       });
       remaining = remaining.slice(match[0].length);
-      pos += match[0].length;
       continue;
     }
 
@@ -391,7 +385,6 @@ function tokenizeInline(text: string): Token[] {
     if (match) {
       tokens.push({ type: "code", content: match[1] });
       remaining = remaining.slice(match[0].length);
-      pos += match[0].length;
       continue;
     }
 
@@ -400,14 +393,12 @@ function tokenizeInline(text: string): Token[] {
     if (match) {
       tokens.push({ type: "text", content: match[0] });
       remaining = remaining.slice(match[0].length);
-      pos += match[0].length;
       continue;
     }
 
     // Single character (probably a stray quote or bracket)
     tokens.push({ type: "text", content: remaining[0] });
     remaining = remaining.slice(1);
-    pos += 1;
   }
 
   return tokens;

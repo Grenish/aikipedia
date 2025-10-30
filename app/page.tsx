@@ -42,10 +42,10 @@ export default function Home() {
 
   return (
     <div className="flex min-h-svh w-full flex-col items-center justify-center">
-      <div className="mb-8 text-center space-y-2">
+      <div className="mb-8 text-center space-y-2 px-4">
         <div className="flex flex-col items-center justify-center gap-2 mb-3">
-          <h1 className="text-5xl font-bold">AikiPedia</h1>
-          <p className="text-muted-foreground text-sm w-1/2">
+          <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold">AikiPedia</h1>
+          <p className="text-muted-foreground text-xs sm:text-sm w-full sm:w-3/4 md:w-2/3 lg:w-1/2">
             Your AI-glorified Wikipedia that roasts the same boring facts
             you&apos;d scroll past on the real one-but now with zero patience
             for the dry-ass nonsense.
@@ -53,26 +53,26 @@ export default function Home() {
         </div>
       </div>
 
-      <form onSubmit={handleSubmit} className="w-full max-w-2xl px-4">
+      <form onSubmit={handleSubmit} className="w-full max-w-2xl px-4 sm:px-6">
         <div className="relative group">
           <div className="relative flex items-center bg-background border rounded-full">
-            <Search className="absolute left-5 h-5 w-5 text-muted-foreground pointer-events-none" />
+            <Search className="absolute left-3 sm:left-5 h-4 w-4 sm:h-5 sm:w-5 text-muted-foreground pointer-events-none" />
             <Input
               value={query}
               onChange={(e) => setQuery(e.target.value)}
-              className="w-full pl-14 pr-16 py-6 text-base border-0 rounded-full outline-none focus-visible:ring-0 focus-visible:ring-offset-0 bg-transparent"
+              className="w-full pl-10 sm:pl-14 pr-12 sm:pr-16 py-4 sm:py-6 text-sm sm:text-base border-0 rounded-full outline-none focus-visible:ring-0 focus-visible:ring-offset-0 bg-transparent"
               placeholder="Ask me anything..."
             />
             <Button
               type="submit"
               disabled={isEnhancing}
-              className="rounded-full absolute right-2 h-10 w-10 shadow-md hover:shadow-lg transition-all duration-200 hover:scale-105"
+              className="rounded-full absolute right-1.5 sm:right-2 h-8 w-8 sm:h-10 sm:w-10 shadow-md hover:shadow-lg transition-all duration-200 hover:scale-105"
               size="icon"
             >
               {isEnhancing ? (
-                <Loader2 className="h-5 w-5 animate-spin" />
+                <Loader2 className="h-4 w-4 sm:h-5 sm:w-5 animate-spin" />
               ) : (
-                <ArrowUp className="h-5 w-5" />
+                <ArrowUp className="h-4 w-4 sm:h-5 sm:w-5" />
               )}
             </Button>
           </div>
