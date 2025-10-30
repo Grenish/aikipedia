@@ -56,6 +56,16 @@ function SearchContent() {
     fetchSuggestions();
   }, [query, router]);
 
+  // Update page title when data loads
+  useEffect(() => {
+    if (data?.query) {
+      document.title = `Search: ${data.query} - AikiPedia`;
+    }
+    return () => {
+      document.title = "AikiPedia";
+    };
+  }, [data?.query]);
+
   const handleBack = () => {
     router.push("/");
   };
