@@ -73,6 +73,10 @@ export default function SearchedPage() {
 
   const generateOverview = async () => {
     if (!data) return;
+    // If we've already generated an overview, do nothing (single-click behavior)
+    if (overview) return;
+    // Prevent double submissions
+    if (isGenerating) return;
 
     try {
       setIsGenerating(true);
@@ -171,7 +175,9 @@ export default function SearchedPage() {
             >
               <ArrowLeft />
             </Button>
-            <h2 className="text-base sm:text-lg md:text-xl font-semibold truncate flex-1">{data.title}</h2>
+            <h2 className="text-base sm:text-lg md:text-xl font-semibold truncate flex-1">
+              {data.title}
+            </h2>
           </nav>
         </header>
         <div className="w-full sm:w-11/12 md:w-9/12 mx-auto py-5">
@@ -241,21 +247,27 @@ export default function SearchedPage() {
             </div>
           </div>
           <div className="mt-5">
-            <h2 className="text-xl sm:text-2xl md:text-3xl font-semibold">{data.title}</h2>
+            <h2 className="text-xl sm:text-2xl md:text-3xl font-semibold">
+              {data.title}
+            </h2>
             {/* summary below */}
-            <p className="text-muted-foreground text-xs sm:text-sm mt-2">{data.summary}</p>
+            <p className="text-muted-foreground text-xs sm:text-sm mt-2">
+              {data.summary}
+            </p>
           </div>
           <div className="mt-5">
             <Button
               size={"sm"}
               onClick={generateOverview}
-              disabled={isGenerating}
+              disabled={isGenerating || !!overview}
             >
               {isGenerating ? (
                 <>
                   <Spinner />
                   Generating...
                 </>
+              ) : overview ? (
+                "Generated"
               ) : (
                 "Generate Overview"
               )}
