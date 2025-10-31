@@ -1,9 +1,10 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Spinner } from "@/components/ui/spinner";
-import { ArrowLeft, ChevronRight, Search } from "lucide-react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { ArrowLeft, ArrowUp, ChevronRight, Search } from "lucide-react";
+import { useRouter, usePathname } from "next/navigation";
 import { useEffect, useState, Suspense } from "react";
 
 interface Suggestion {
@@ -19,41 +20,28 @@ interface SuggestionsData {
 
 function SearchContent() {
   const router = useRouter();
-  const searchParams = useSearchParams();
-  const query = searchParams.get("q") || "";
+  const pathname = usePathname();
+  // Read query from window.location.search on the client so updating the URL
+  // doesn't trigger the App Router to navigate. We keep the query in state
+  // and update it with history.pushState / popstate.
+  const [query, setQuery] = useState(() => {
+    if (typeof window === "undefined") return "";
+    const params = new URLSearchParams(window.location.search);
+    return params.get("q") || "";
+  });
   const [data, setData] = useState<SuggestionsData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [searchInput, setSearchInput] = useState(query);
+  const [isEnhancing, setIsEnhancing] = useState(false);
 
   useEffect(() => {
-    const fetchSuggestions = async () => {
-      if (!query) {
-        router.push("/");
-        return;
-      }
+    if (!query) {
+      router.push("/");
+      return;
+    }
 
-      try {
-        setLoading(true);
-        setError(null);
-        const response = await fetch(
-          `/api/suggestions?q=${encodeURIComponent(query)}`,
-        );
-
-        if (!response.ok) {
-          throw new Error("Failed to fetch suggestions");
-        }
-
-        const result = await response.json();
-        setData(result);
-      } catch (err) {
-        setError("Failed to load suggestions. Please try again.");
-        console.error(err);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchSuggestions();
+    fetchSuggestionsForQuery(query);
   }, [query, router]);
 
   // Update page title when data loads
@@ -65,6 +53,89 @@ function SearchContent() {
       document.title = "AikiPedia";
     };
   }, [data?.query]);
+
+  // Update input when query changes
+  useEffect(() => {
+    setSearchInput(query);
+  }, [query]);
+
+  // Listen to browser navigation (back/forward). When the user navigates
+  // via history, update local query state and let the existing effect
+  // that watches `query` re-fetch suggestions. This avoids using
+  // next/navigation search params which can cause App Router navigation.
+  useEffect(() => {
+    const onPop = () => {
+      const params = new URLSearchParams(window.location.search);
+      const q = params.get("q") || "";
+      setQuery(q);
+      setSearchInput(q);
+      // fetch will be triggered by the effect watching `query`
+    };
+    window.addEventListener("popstate", onPop);
+    return () => window.removeEventListener("popstate", onPop);
+  }, []);
+
+  const handleSearchSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const trimmed = searchInput.trim();
+    if (!trimmed || trimmed === query) return;
+
+    try {
+      setIsEnhancing(true);
+
+      // Enhance query with AI
+      const response = await fetch("/api/enhance-query", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ query: trimmed }),
+      });
+
+      const { enhancedQuery } = await response.json();
+
+      // Update URL using history API without triggering App Router navigation
+      const params = new URLSearchParams(window.location.search);
+      params.set("q", enhancedQuery);
+      window.history.pushState(null, "", `${pathname}?${params.toString()}`);
+
+      // Update local query state so effects re-run and suggestions fetch
+      setQuery(enhancedQuery);
+    } catch (error) {
+      console.error("Enhancement error:", error);
+      // Fallback to original query if enhancement fails
+      const params = new URLSearchParams(window.location.search);
+      params.set("q", trimmed);
+      window.history.pushState(null, "", `${pathname}?${params.toString()}`);
+      setQuery(trimmed);
+    } finally {
+      setIsEnhancing(false);
+    }
+  };
+
+  const fetchSuggestionsForQuery = async (searchQuery: string) => {
+    if (!searchQuery) return;
+
+    try {
+      setLoading(true);
+      setError(null);
+      const response = await fetch(
+        `/api/suggestions?q=${encodeURIComponent(searchQuery)}`,
+      );
+
+      if (!response.ok) {
+        throw new Error("Failed to fetch suggestions");
+      }
+
+      const result = await response.json();
+      setData(result);
+    } catch (err) {
+      setError("Failed to load suggestions. Please try again.");
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleBack = () => {
     router.push("/");
@@ -112,16 +183,43 @@ function SearchContent() {
             </Button>
             <div className="flex flex-col min-w-0 flex-1">
               <p className="text-xs">Search result for</p>
-              <h2 className="text-base sm:text-lg font-semibold truncate">{data.query}</h2>
+              <h2 className="text-base sm:text-lg font-semibold truncate">
+                {data.query}
+              </h2>
             </div>
           </nav>
         </header>
 
         <div className="w-full sm:w-11/12 md:w-9/12 mx-auto py-5">
+          <form onSubmit={handleSearchSubmit} className="mb-5">
+            <div className="relative flex items-center bg-background border rounded-full">
+              <Search className="absolute left-3 sm:left-5 h-4 w-4 sm:h-5 sm:w-5 text-muted-foreground pointer-events-none" />
+              <Input
+                value={searchInput}
+                onChange={(e) => setSearchInput(e.target.value)}
+                className="w-full pl-10 sm:pl-14 pr-12 sm:pr-16 py-4 sm:py-6 text-sm sm:text-base border-0 rounded-full outline-none focus-visible:ring-0 focus-visible:ring-offset-0 bg-transparent"
+                placeholder="Ask me anything..."
+              />
+              <Button
+                type="submit"
+                disabled={isEnhancing}
+                className="rounded-full absolute right-1.5 sm:right-2 h-8 w-8 sm:h-10 sm:w-10 shadow-md hover:shadow-lg transition-all duration-200 hover:scale-105"
+                size="icon"
+              >
+                {isEnhancing ? (
+                  <Spinner />
+                ) : (
+                  <ArrowUp className="h-4 w-4 sm:h-5 sm:w-5" />
+                )}
+              </Button>
+            </div>
+          </form>
           {data.suggestions.length === 0 ? (
             <div className="text-center py-12">
               <Search className="h-12 w-12 sm:h-16 sm:w-16 mx-auto text-muted-foreground mb-4" />
-              <h3 className="text-lg sm:text-xl font-semibold mb-2">No results found</h3>
+              <h3 className="text-lg sm:text-xl font-semibold mb-2">
+                No results found
+              </h3>
               <p className="text-muted-foreground text-sm">
                 Try searching for something else
               </p>
