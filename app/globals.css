@@ -237,3 +237,58 @@
         animation: gradient 8s ease infinite;
     }
 }
+
+/* globals.css or app.css */
+
+/* KaTeX Font Loading */
+.katex {
+    font-size: 1.1em;
+}
+
+.katex-display {
+    margin: 1em 0;
+    text-align: center;
+}
+
+/* Dark mode KaTeX support */
+.dark .katex {
+    color: rgb(229, 231, 235);
+}
+
+.dark .katex .katex-mathml {
+    color: rgb(229, 231, 235);
+}
+
+/* Code block improvements */
+pre code {
+    display: block;
+    overflow-x: auto;
+    padding: 0;
+    color: inherit;
+    background: transparent;
+    border: none;
+}
+
+/* Table improvements */
+table {
+    border-spacing: 0;
+    width: 100%;
+}
+
+/* Scrollbar for code blocks */
+pre::-webkit-scrollbar {
+    height: 8px;
+}
+
+pre::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+pre::-webkit-scrollbar-thumb {
+    background: hsl(var(--muted-foreground) / 0.3);
+    border-radius: 4px;
+}
+
+pre::-webkit-scrollbar-thumb:hover {
+    background: hsl(var(--muted-foreground) / 0.5);
+}
