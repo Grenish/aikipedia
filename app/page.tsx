@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { ArrowUp, Search, Loader2 } from "lucide-react";
 import { FormEvent, useState } from "react";
 import { useRouter } from "next/navigation";
+import { Spinner } from "@/components/ui/spinner";
 
 export default function Home() {
   const [query, setQuery] = useState("");
@@ -44,7 +45,9 @@ export default function Home() {
     <div className="flex min-h-svh w-full flex-col items-center justify-center">
       <div className="mb-8 text-center space-y-2 px-4">
         <div className="flex flex-col items-center justify-center gap-2 mb-3">
-          <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold">AikiPedia</h1>
+          <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold">
+            AikiPedia
+          </h1>
           <p className="text-muted-foreground text-xs sm:text-sm w-full sm:w-3/4 md:w-2/3 lg:w-1/2">
             Your AI-glorified Wikipedia that roasts the same boring facts
             you&apos;d scroll past on the real one-but now with zero patience
@@ -70,7 +73,7 @@ export default function Home() {
               size="icon"
             >
               {isEnhancing ? (
-                <Loader2 className="h-4 w-4 sm:h-5 sm:w-5 animate-spin" />
+                <Spinner />
               ) : (
                 <ArrowUp className="h-4 w-4 sm:h-5 sm:w-5" />
               )}
