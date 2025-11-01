@@ -2,13 +2,15 @@
 
 import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Bookmark, BookmarkCheck, Share2 } from "lucide-react";
 import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import Image from "next/image";
+
 import { WikiMarkdown } from "@/components/wiki/WikiMarkdown";
 import { Separator } from "@/components/ui/separator";
 import { Streamdown } from "streamdown";
+import { ShareCard } from "@/components/ShareCard";
+import { ImageGallery } from "@/components/ImageGallery";
 
 interface WikiData {
   title: string;
@@ -17,6 +19,13 @@ interface WikiData {
   images: string[];
   thumbnail: string | null;
   pageId: number;
+}
+
+interface BookmarkedArticle {
+  title: string;
+  link: string;
+  thumbnail: string | null;
+  savedAt: number;
 }
 
 export default function SearchedPage() {
@@ -28,6 +37,9 @@ export default function SearchedPage() {
   const [error, setError] = useState<string | null>(null);
   const [overview, setOverview] = useState<string>("");
   const [isGenerating, setIsGenerating] = useState(false);
+  const [hasGenerated, setHasGenerated] = useState(false);
+  const [isOverviewCollapsed, setIsOverviewCollapsed] = useState(false);
+  const [isBookmarked, setIsBookmarked] = useState(false);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -66,6 +78,55 @@ export default function SearchedPage() {
       document.title = "AikiPedia";
     };
   }, [data?.title]);
+
+  // Check if article is already bookmarked
+  useEffect(() => {
+    if (data?.title) {
+      const bookmarks = getBookmarks();
+      const exists = bookmarks.some(
+        (bookmark) => bookmark.title === data.title,
+      );
+      setIsBookmarked(exists);
+    }
+  }, [data?.title]);
+
+  const getBookmarks = (): BookmarkedArticle[] => {
+    if (typeof window === "undefined") return [];
+    const stored = localStorage.getItem("aikipedia-bookmarks");
+    return stored ? JSON.parse(stored) : [];
+  };
+
+  const saveBookmarks = (bookmarks: BookmarkedArticle[]) => {
+    if (typeof window === "undefined") return;
+    localStorage.setItem("aikipedia-bookmarks", JSON.stringify(bookmarks));
+  };
+
+  const handleBookmark = () => {
+    if (!data) return;
+
+    const bookmarks = getBookmarks();
+    const existingIndex = bookmarks.findIndex(
+      (bookmark) => bookmark.title === data.title,
+    );
+
+    if (existingIndex !== -1) {
+      // Remove bookmark
+      bookmarks.splice(existingIndex, 1);
+      setIsBookmarked(false);
+    } else {
+      // Add bookmark
+      const newBookmark: BookmarkedArticle = {
+        title: data.title,
+        link: `/search/${encodeURIComponent(data.title)}`,
+        thumbnail: data.thumbnail,
+        savedAt: Date.now(),
+      };
+      bookmarks.unshift(newBookmark); // Add to beginning
+      setIsBookmarked(true);
+    }
+
+    saveBookmarks(bookmarks);
+  };
 
   const handleBack = () => {
     router.push("/");
@@ -116,6 +177,7 @@ export default function SearchedPage() {
       setOverview("Failed to generate overview. Please try again.");
     } finally {
       setIsGenerating(false);
+      setHasGenerated(true);
     }
   };
 
@@ -171,103 +233,98 @@ export default function SearchedPage() {
             >
               <ArrowLeft />
             </Button>
-            <h2 className="text-base sm:text-lg md:text-xl font-semibold truncate flex-1">{data.title}</h2>
+            <h2 className="text-base sm:text-lg md:text-xl font-semibold truncate flex-1">
+              {data.title}
+            </h2>
           </nav>
         </header>
         <div className="w-full sm:w-11/12 md:w-9/12 mx-auto py-5">
-          <div className="grid grid-cols-2 sm:grid-cols-4 grid-rows-2 gap-2 sm:gap-4 h-[300px] sm:h-[400px] md:h-[500px]">
-            {/* Main large item - takes 2 columns and 2 rows on desktop, full width on mobile */}
-            <div className="col-span-2 row-span-2 rounded-2xl overflow-hidden bg-muted relative">
-              {displayImages[0] ? (
-                <Image
-                  src={displayImages[0]}
-                  alt={data.title}
-                  fill
-                  className="object-cover"
-                />
-              ) : (
-                <div
-                  className={`w-full h-full bg-linear-to-br ${imageColors[0]}`}
-                ></div>
-              )}
-            </div>
-
-            {/* Top right item - hidden on mobile */}
-            <div className="hidden sm:block col-span-2 row-span-1 rounded-2xl overflow-hidden bg-muted relative">
-              {displayImages[1] ? (
-                <Image
-                  src={displayImages[1]}
-                  alt={data.title}
-                  fill
-                  className="object-cover"
-                />
-              ) : (
-                <div
-                  className={`w-full h-full bg-linear-to-br ${imageColors[1]}`}
-                ></div>
-              )}
-            </div>
-
-            {/* Bottom right first item - hidden on mobile */}
-            <div className="hidden sm:block col-span-1 row-span-1 rounded-2xl overflow-hidden bg-muted relative">
-              {displayImages[2] ? (
-                <Image
-                  src={displayImages[2]}
-                  alt={data.title}
-                  fill
-                  className="object-cover"
-                />
-              ) : (
-                <div
-                  className={`w-full h-full bg-linear-to-br ${imageColors[2]}`}
-                ></div>
-              )}
-            </div>
-
-            {/* Bottom right second item - hidden on mobile */}
-            <div className="hidden sm:block col-span-1 row-span-1 rounded-2xl overflow-hidden bg-muted relative">
-              {displayImages[3] ? (
-                <Image
-                  src={displayImages[3]}
-                  alt={data.title}
-                  fill
-                  className="object-cover"
-                />
-              ) : (
-                <div
-                  className={`w-full h-full bg-linear-to-br ${imageColors[3]}`}
-                ></div>
-              )}
-            </div>
-          </div>
+          <ImageGallery
+            images={displayImages}
+            title={data.title}
+            imageColors={imageColors}
+          />
           <div className="mt-5">
-            <h2 className="text-xl sm:text-2xl md:text-3xl font-semibold">{data.title}</h2>
+            <h2 className="text-xl sm:text-2xl md:text-3xl font-semibold">
+              {data.title}
+            </h2>
             {/* summary below */}
-            <p className="text-muted-foreground text-xs sm:text-sm mt-2">{data.summary}</p>
+            <p className="text-muted-foreground text-xs sm:text-sm mt-2">
+              {data.summary}
+            </p>
           </div>
           <div className="mt-5">
-            <Button
-              size={"sm"}
-              onClick={generateOverview}
-              disabled={isGenerating}
-            >
-              {isGenerating ? (
-                <>
-                  <Spinner />
-                  Generating...
-                </>
-              ) : (
-                "Generate Overview"
-              )}
-            </Button>
+            <div className="flex items-center justify-between gap-2">
+              <div className="flex items-center gap-2">
+                <Button
+                  size={"sm"}
+                  onClick={generateOverview}
+                  disabled={isGenerating || hasGenerated}
+                  className={
+                    hasGenerated ? "opacity-50 cursor-not-allowed" : ""
+                  }
+                >
+                  {isGenerating ? (
+                    <>
+                      <Spinner />
+                      Generating...
+                    </>
+                  ) : hasGenerated ? (
+                    "Generated"
+                  ) : (
+                    "Generate Overview"
+                  )}
+                </Button>
+                {hasGenerated && overview && (
+                  <Button
+                    size={"sm"}
+                    variant="outline"
+                    onClick={() => setIsOverviewCollapsed(!isOverviewCollapsed)}
+                  >
+                    {isOverviewCollapsed ? "Show" : "Hide"}
+                  </Button>
+                )}
+              </div>
+              <div className="flex items-center gap-2">
+                <ShareCard title={data.title} description={data.summary}>
+                  <Button size={"icon-sm"} variant="ghost" className="">
+                    <Share2 className="h-4 w-4" />
+                  </Button>
+                </ShareCard>
+                <Button
+                  size={"icon-sm"}
+                  variant="ghost"
+                  onClick={handleBookmark}
+                  className={isBookmarked ? "text-primary" : ""}
+                >
+                  {isBookmarked ? (
+                    <BookmarkCheck className="h-4 w-4" />
+                  ) : (
+                    <Bookmark className="h-4 w-4" />
+                  )}
+                </Button>
+              </div>
+            </div>
             {overview && (
-              <div className="mt-4 p-3 sm:p-4 rounded-lg bg-muted/50 border border-border">
+              <div className="mt-4 p-3 sm:p-4 rounded-lg bg-muted/50 border border-border transition-all duration-300 ease-in-out overflow-hidden">
                 <h3 className="text-xs sm:text-sm font-semibold mb-2 flex items-center gap-2">
                   AI Overview
                 </h3>
-                <Streamdown className="text-xs sm:text-sm leading-relaxed text-foreground/90">
-                  {overview}
-                </Streamdown>
+                <div
+                  className={`transition-all duration-300 ease-in-out ${
+                    isOverviewCollapsed
+                      ? "max-h-6 overflow-hidden"
+                      : "max-h-[2000px]"
+                  }`}
+                >
+                  <Streamdown
+                    className={`text-xs sm:text-sm leading-relaxed text-foreground/90 transition-all duration-300 ${
+                      isOverviewCollapsed ? "line-clamp-1" : ""
+                    }`}
+                  >
+                    {overview}
+                  </Streamdown>
+                </div>
               </div>
             )}
           </div>
