@@ -237,3 +237,16 @@
         animation: gradient 8s ease infinite;
     }
 }
+
+@font-face {
+    font-family: "Magenta";
+    src:
+        url("/fonts/Magenta.woff2") format("woff2"),
+        url("/fonts/Magenta.woff") format("woff");
+    font-weight: normal;
+    font-style: normal;
+    font-display: swap;
+}
+@theme {
+    --font-magent: "Magenta";
+}
