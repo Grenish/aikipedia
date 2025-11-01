@@ -237,3 +237,17 @@
         animation: gradient 8s ease infinite;
     }
 }
+
+@font-face {
+    font-family: "Alenia";
+    src:
+        url("/fonts/AleniaRegular.woff2") format("woff2"),
+        url("/fonts/AleniaRegular.woff") format("woff");
+    font-weight: normal;
+    font-style: normal;
+    font-display: swap;
+}
+
+@theme {
+    --font-alenia: "Alenia";
+}
