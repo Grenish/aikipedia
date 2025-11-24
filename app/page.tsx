@@ -16,6 +16,12 @@ import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { Badge } from "@/components/ui/badge";
 import { Spinner } from "@/components/ui/spinner";
+import {
+  InputGroup,
+  InputGroupAddon,
+  InputGroupButton,
+  InputGroupInput,
+} from "@/components/ui/input-group";
 
 interface BookmarkedArticle {
   title: string;
@@ -111,7 +117,7 @@ export default function Home() {
             <h1 className="text-3xl sm:text-4xl md:text-5xl font-black font-magent">
               AikiPedia
             </h1>
-            <Badge>v0.2</Badge>
+            <Badge>v0.3</Badge>
           </div>
           <p className="text-muted-foreground text-xs sm:text-sm w-full sm:w-3/4 md:w-2/3 lg:w-1/2">
             Your AI-glorified Wikipedia that roasts the same boring facts
@@ -122,28 +128,29 @@ export default function Home() {
       </div>
 
       <form onSubmit={handleSubmit} className="w-full max-w-2xl px-4 sm:px-6">
-        <div className="relative group">
-          <div className="relative flex items-center bg-background border rounded-full">
-            <Search className="absolute left-3 sm:left-5 h-4 w-4 sm:h-5 sm:w-5 text-muted-foreground pointer-events-none" />
-            <Input
+        <div className="">
+          <InputGroup className="rounded-full h-auto">
+            <InputGroupAddon className="">
+              <Search />
+            </InputGroupAddon>
+            <InputGroupInput
               value={query}
               onChange={(e) => setQuery(e.target.value)}
-              className="w-full pl-10 sm:pl-14 pr-12 sm:pr-16 py-4 sm:py-6 text-sm sm:text-base border-0 rounded-full outline-none focus-visible:ring-0 focus-visible:ring-offset-0 bg-transparent"
+              type="text"
               placeholder="Ask me anything..."
             />
-            <Button
-              type="submit"
-              disabled={isEnhancing}
-              className="rounded-full absolute right-1.5 sm:right-2 h-8 w-8 sm:h-10 sm:w-10 shadow-md hover:shadow-lg transition-all duration-200 hover:scale-105"
-              size="icon"
-            >
-              {isEnhancing ? (
-                <Spinner />
-              ) : (
-                <ArrowUp className="h-4 w-4 sm:h-5 sm:w-5" />
-              )}
-            </Button>
-          </div>
+            <InputGroupAddon align="inline-end">
+              <InputGroupButton
+                type="submit"
+                disabled={isEnhancing}
+                className="rounded-full shadow-md hover:shadow-lg transition-all duration-200 hover:scale-105"
+                size="icon-sm"
+                variant={"default"}
+              >
+                {isEnhancing ? <Spinner /> : <ArrowUp />}
+              </InputGroupButton>
+            </InputGroupAddon>
+          </InputGroup>
         </div>
       </form>
 
