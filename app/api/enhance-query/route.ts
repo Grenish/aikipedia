@@ -18,7 +18,7 @@ export async function POST(request: NextRequest) {
 
     // Use Gemini to answer the query and convert to search term
     const { text } = await generateText({
-      model: google("gemini-flash-latest"),
+      model: google("gemini-2.5-flash-lite"),
       prompt: `You are a helpful assistant that answers questions and converts them into Wikipedia search terms.
 
 If the user asks a question (like "CEO of Google" or "who invented the telephone"), answer it briefly with the specific person, thing, or concept, then return ONLY that answer as the search term.

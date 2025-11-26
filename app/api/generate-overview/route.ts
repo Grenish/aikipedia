@@ -24,7 +24,7 @@ export async function POST(request: Request) {
 
     // Generate AI overview using streaming
     const result = streamText({
-      model: google("gemini-2.0-flash-exp"),
+      model: google("gemini-2.5-flash-lite"),
       prompt: `You are an expert editor specializing in concise, authoritative summaries of Wikipedia articles.
 
       Given the Wikipedia article titled "${title}", produce a single, professional paragraph (150–200 words) that:
